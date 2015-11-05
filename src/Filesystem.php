@@ -4,7 +4,6 @@ namespace Spatie\MediaLibrary;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Filesystem\Factory;
-use Spatie\MediaLibrary\Helpers\Gitignore;
 
 class Filesystem
 {
@@ -111,8 +110,6 @@ class Filesystem
      */
     public function getMediaDirectory(Media $media)
     {
-        $this->filesystems->disk($media->disk)->put('.gitignore', Gitignore::getContents());
-
         $directory = $media->id;
         $this->filesystems->disk($media->disk)->makeDirectory($directory);
 
