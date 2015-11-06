@@ -4,6 +4,7 @@ namespace Spatie\MediaLibrary;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Str;
 use Spatie\Glide\GlideImage;
 use Spatie\MediaLibrary\Conversion\Conversion;
 use Spatie\MediaLibrary\Conversion\ConversionCollection;
@@ -52,7 +53,7 @@ class FileManipulator
     {
         $tempDirectory = $this->createTempDirectory();
 
-        $copiedOriginalFile = $tempDirectory.'/'.str_random(16).'.'.$media->extension;
+        $copiedOriginalFile = $tempDirectory . DIRECTORY_SEPARATOR . str_random(16) . '.' . $media->extension;
 
         app(Filesystem::class)->copyFromMediaLibrary($media, $copiedOriginalFile);
 
@@ -83,7 +84,7 @@ class FileManipulator
      */
     public function performConversion(Media $media, Conversion $conversion, $copiedOriginalFile)
     {
-        $conversionTempFile = pathinfo($copiedOriginalFile, PATHINFO_DIRNAME).'/'.string()->random(16).
+        $conversionTempFile = pathinfo($copiedOriginalFile, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . string()->random(16).
             $conversion->getName().'.'.$media->extension;
 
         File::copy($copiedOriginalFile, $conversionTempFile);
