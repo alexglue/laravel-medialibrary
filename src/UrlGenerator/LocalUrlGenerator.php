@@ -19,7 +19,7 @@ class LocalUrlGenerator extends BaseUrlGenerator implements UrlGenerator
             throw new UrlCouldNotBeDetermined('The storage path is not part of the public path');
         }
 
-        $url = $this->getBaseMediaDirectory().'/'.$this->getPathRelativeToRoot();
+        $url = $this->getBaseMediaDirectory() . DIRECTORY_SEPARATOR . $this->getPathRelativeToRoot();
 
         return $this->makeCompatibleForNonUnixHosts($url);
     }
@@ -31,7 +31,7 @@ class LocalUrlGenerator extends BaseUrlGenerator implements UrlGenerator
      */
     public function getPath()
     {
-        return $this->getStoragePath().'/'.$this->getPathRelativeToRoot();
+        return $this->getStoragePath() . DIRECTORY_SEPARATOR . $this->getPathRelativeToRoot();
     }
 
     /**
