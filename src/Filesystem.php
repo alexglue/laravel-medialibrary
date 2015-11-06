@@ -51,7 +51,7 @@ class Filesystem
     public function copyToMediaLibrary($file, Media $media, $subDirectory = '', $targetFileName = '')
     {
         $destination = array_filter([
-                $this->getMediaDirectory($media),
+                $this->getMediaDirectoryName($media),
                 $subDirectory,
                 $targetFileName? basename($targetFileName) : $targetFileName
         ]);
@@ -69,7 +69,7 @@ class Filesystem
      */
     public function copyFromMediaLibrary(Media $media, $targetFile)
     {
-        $sourceFile = $this->getMediaDirectory($media) . DIRECTORY_SEPARATOR . $media->file_name;
+        $sourceFile = $this->getMediaDirectoryName($media) . DIRECTORY_SEPARATOR . $media->file_name;
 
         touch($targetFile);
 
@@ -85,7 +85,7 @@ class Filesystem
      */
     public function removeFiles(Media $media)
     {
-        $this->filesystems->disk($media->disk)->deleteDirectory($this->getMediaDirectory($media));
+        $this->filesystems->disk($media->disk)->deleteDirectory($this->getMediaDirectoryName($media));
     }
 
     /**
@@ -98,8 +98,8 @@ class Filesystem
      */
     public function renameFile(Media $media, $oldName)
     {
-        $oldFile = $this->getMediaDirectory($media) . DIRECTORY_SEPARATOR . $oldName;
-        $newFile = $this->getMediaDirectory($media) . DIRECTORY_SEPARATOR . $media->file_name;
+        $oldFile = $this->getMediaDirectoryName($media) . DIRECTORY_SEPARATOR . $oldName;
+        $newFile = $this->getMediaDirectoryName($media) . DIRECTORY_SEPARATOR . $media->file_name;
 
         $this->filesystems->disk($media->disk)->move($oldFile, $newFile);
 
@@ -115,7 +115,7 @@ class Filesystem
      */
     public function getMediaDirectory(Media $media)
     {
-        $directory = $media->id;
+        $directory = $this->getMediaDirectoryName($media);
         $this->filesystems->disk($media->disk)->makeDirectory($directory);
 
         return $directory;

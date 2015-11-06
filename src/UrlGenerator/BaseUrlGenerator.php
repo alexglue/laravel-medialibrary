@@ -4,6 +4,7 @@ namespace Spatie\MediaLibrary\UrlGenerator;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Spatie\MediaLibrary\Conversion\Conversion;
+use Spatie\MediaLibrary\Filesystem;
 
 abstract class BaseUrlGenerator
 {
@@ -61,7 +62,7 @@ abstract class BaseUrlGenerator
      */
     public function getPathRelativeToRoot()
     {
-        $path = $this->media->id;
+        $path = app(Filesystem::class)->getMediaDirectoryName($this->media);
 
         if (is_null($this->conversion)) {
             return $path . DIRECTORY_SEPARATOR . $this->media->file_name;
