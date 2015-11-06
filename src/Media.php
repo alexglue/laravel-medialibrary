@@ -7,6 +7,15 @@ use Spatie\MediaLibrary\Conversion\ConversionCollectionFactory;
 use Spatie\MediaLibrary\Helpers\File;
 use Spatie\MediaLibrary\UrlGenerator\UrlGeneratorFactory;
 
+/**
+ * @property string file_name
+ * @property string extension
+ * @property string disk
+ * @property mixed custom_properties
+ * @property int id
+ * @property string collection_name
+ * @property string model_type
+ */
 class Media extends Model
 {
     use SortableTrait;
@@ -128,6 +137,7 @@ class Media extends Model
     /**
      * Determine if the media item has a custom property with the given name.
      *
+     * @param string $propertyName
      * @return bool
      */
     public function hasCustomProperty($propertyName)
@@ -139,8 +149,7 @@ class Media extends Model
      * Get if the value of custom property with the given name.
      *
      * @param string $propertyName
-     * @param mixed  $propertyName
-     *
+     * @param null  $default
      * @return mixed
      */
     public function getCustomProperty($propertyName, $default = null)
