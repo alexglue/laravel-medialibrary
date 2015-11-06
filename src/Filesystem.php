@@ -120,4 +120,19 @@ class Filesystem
 
         return $directory;
     }
+
+    public function getMediaDirectoryName(Media $media)
+    {
+        $filename   = pathinfo($media->file_name, PATHINFO_FILENAME);
+        $model_path = explode('\\', $media->model_type);
+
+        $parts = [
+            strtolower(array_pop($model_path)),
+            strtolower($media->collection_name),
+            implode(DIRECTORY_SEPARATOR, array_slice(str_split($filename, 3), 0, 3)),
+            $media->id
+        ];
+
+        return implode(DIRECTORY_SEPARATOR, $parts);
+    }
 }
