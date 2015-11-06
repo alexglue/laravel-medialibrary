@@ -9,54 +9,58 @@ use Spatie\MediaLibrary\MediaRepository;
 
 class RegenerateCommand extends Command
 {
-    /**
-     * The console command name.
-     *
-     * @var string
-     */
-    protected $signature = 'medialibrary:regenerate {modelType?}';
+	/**
+	 * The console command name.
+	 *
+	 * @var string
+	 */
+	protected $signature = 'medialibrary:regenerate {modelType?}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Regenerate the derived images of media';
+	/**
+	 * The console command description.
+	 *
+	 * @var string
+	 */
+	protected $description = 'Regenerate the derived images of media';
 
-    /**
-     * @var \Spatie\MediaLibrary\MediaRepository
-     */
-    protected $mediaRepository;
+	/**
+	 * @var \Spatie\MediaLibrary\MediaRepository
+	 */
+	protected $mediaRepository;
 
-    /**
-     * @var \Spatie\MediaLibrary\FileManipulator
-     */
-    protected $fileManipulator;
+	/**
+	 * @var \Spatie\MediaLibrary\FileManipulator
+	 */
+	protected $fileManipulator;
 
-    public function __construct(MediaRepository $mediaRepository, FileManipulator $fileManipulator)
-    {
-        parent::__construct();
+	public function __construct(MediaRepository $mediaRepository, FileManipulator $fileManipulator)
+	{
+		parent::__construct();
 
-        $this->mediaRepository = $mediaRepository;
-        $this->fileManipulator = $fileManipulator;
-    }
+		$this->mediaRepository = $mediaRepository;
+		$this->fileManipulator = $fileManipulator;
+	}
 
-    public function handle()
-    {
-        $this->getMediaToBeRegenerated()->map(function (Media $media) {
-            $this->fileManipulator->createDerivedFiles($media);
-            $this->info(sprintf('Media %s regenerated', $media->id));
-        });
+	public function handle()
+	{
+		$this->getMediaToBeRegenerated()->map(
+			function (Media $media)
+			{
+				$this->fileManipulator->createDerivedFiles($media);
+				$this->info(sprintf('Media %s regenerated', $media->id));
+			}
+		);
 
-        $this->info('All done!');
-    }
+		$this->info('All done!');
+	}
 
-    public function getMediaToBeRegenerated()
-    {
-        if ($this->argument('modelType') == '') {
-            return $this->mediaRepository->all();
-        }
+	public function getMediaToBeRegenerated()
+	{
+		if($this->argument('modelType') == '')
+		{
+			return $this->mediaRepository->all();
+		}
 
-        return $this->mediaRepository->getByModelType($this->argument('modelType'));
-    }
+		return $this->mediaRepository->getByModelType($this->argument('modelType'));
+	}
 }

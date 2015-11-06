@@ -2,8 +2,8 @@
 
 namespace Spatie\MediaLibrary;
 
-use Illuminate\Support\Facades\File;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\File;
 use Spatie\Glide\GlideImage;
 use Spatie\MediaLibrary\Conversion\Conversion;
 use Spatie\MediaLibrary\Conversion\ConversionCollection;
@@ -14,134 +14,141 @@ use Spatie\PdfToImage\Pdf;
 
 class FileManipulator
 {
-    use DispatchesJobs;
+	use DispatchesJobs;
 
-    /**
-     * Create all derived files for the given media.
-     *
-     * @param \Spatie\MediaLibrary\Media $media
-     */
-    public function createDerivedFiles(Media $media)
-    {
-        if ($media->type == Media::TYPE_OTHER) {
-            return;
-        }
+	/**
+	 * Create all derived files for the given media.
+	 *
+	 * @param \Spatie\MediaLibrary\Media $media
+	 */
+	public function createDerivedFiles(Media $media)
+	{
+		if($media->type == Media::TYPE_OTHER)
+		{
+			return;
+		}
 
-        if ($media->type == Media::TYPE_PDF && !class_exists('Imagick')) {
-            return;
-        }
+		if($media->type == Media::TYPE_PDF && !class_exists('Imagick'))
+		{
+			return;
+		}
 
-        $profileCollection = ConversionCollectionFactory::createForMedia($media);
+		$profileCollection = ConversionCollectionFactory::createForMedia($media);
 
-        $this->performConversions($profileCollection->getNonQueuedConversions($media->collection_name), $media);
+		$this->performConversions($profileCollection->getNonQueuedConversions($media->collection_name), $media);
 
-        $queuedConversions = $profileCollection->getQueuedConversions($media->collection_name);
+		$queuedConversions = $profileCollection->getQueuedConversions($media->collection_name);
 
-        if (count($queuedConversions)) {
-            $this->dispatchQueuedConversions($media, $queuedConversions);
-        }
-    }
+		if(count($queuedConversions))
+		{
+			$this->dispatchQueuedConversions($media, $queuedConversions);
+		}
+	}
 
-    /**
-     * Perform the given conversions for the given media.
-     *
-     * @param \Spatie\MediaLibrary\Conversion\ConversionCollection $conversions
-     * @param \Spatie\MediaLibrary\Media                           $media
-     */
-    public function performConversions(ConversionCollection $conversions, Media $media)
-    {
-        $tempDirectory = $this->createTempDirectory();
+	/**
+	 * Perform the given conversions for the given media.
+	 *
+	 * @param \Spatie\MediaLibrary\Conversion\ConversionCollection $conversions
+	 * @param \Spatie\MediaLibrary\Media                           $media
+	 */
+	public function performConversions(ConversionCollection $conversions, Media $media)
+	{
+		$tempDirectory = $this->createTempDirectory();
 
-        $copiedOriginalFile = $tempDirectory . DIRECTORY_SEPARATOR . str_random(16) . '.' . $media->extension;
+		$copiedOriginalFile = $tempDirectory . DIRECTORY_SEPARATOR . str_random(16) . '.' . $media->extension;
 
-        app(Filesystem::class)->copyFromMediaLibrary($media, $copiedOriginalFile);
+		app(Filesystem::class)->copyFromMediaLibrary($media, $copiedOriginalFile);
 
-        if ($media->type == Media::TYPE_PDF) {
-            $copiedOriginalFile = $this->convertToImage($copiedOriginalFile);
-        }
+		if($media->type == Media::TYPE_PDF)
+		{
+			$copiedOriginalFile = $this->convertToImage($copiedOriginalFile);
+		}
 
-        foreach ($conversions as $conversion) {
-            $conversionResult = $this->performConversion($media, $conversion, $copiedOriginalFile);
+		foreach($conversions as $conversion)
+		{
+			$conversionResult = $this->performConversion($media, $conversion, $copiedOriginalFile);
 
-            $renamedFile = MediaLibraryFileHelper::renameInDirectory($conversionResult, $conversion->getName().'.'.
-                $conversion->getResultExtension(pathinfo($copiedOriginalFile, PATHINFO_EXTENSION)));
+			$renamedFile = MediaLibraryFileHelper::renameInDirectory(
+				$conversionResult, $conversion->getName() . '.' .
+								 $conversion->getResultExtension(pathinfo($copiedOriginalFile, PATHINFO_EXTENSION))
+			);
 
-            app(Filesystem::class)->copyToMediaLibrary($renamedFile, $media, 'conversions', $renamedFile);
-        }
+			app(Filesystem::class)->copyToMediaLibrary($renamedFile, $media, 'conversions', $renamedFile);
+		}
 
-        File::deleteDirectory($tempDirectory);
-    }
+		File::deleteDirectory($tempDirectory);
+	}
 
-    /**
-     * Perform the conversion.
-     *
-     * @param \Spatie\MediaLibrary\Media $media
-     * @param Conversion                 $conversion
-     * @param string                     $copiedOriginalFile
-     *
-     * @return string
-     */
-    public function performConversion(Media $media, Conversion $conversion, $copiedOriginalFile)
-    {
-        $conversionTempFile = pathinfo($copiedOriginalFile, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . str_random(16).
-            $conversion->getName().'.'.$media->extension;
+	/**
+	 * Perform the conversion.
+	 *
+	 * @param \Spatie\MediaLibrary\Media $media
+	 * @param Conversion                 $conversion
+	 * @param string                     $copiedOriginalFile
+	 * @return string
+	 */
+	public function performConversion(Media $media, Conversion $conversion, $copiedOriginalFile)
+	{
+		$conversionTempFile = pathinfo($copiedOriginalFile, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . str_random(16) .
+			$conversion->getName() . '.' . $media->extension;
 
-        File::copy($copiedOriginalFile, $conversionTempFile);
+		File::copy($copiedOriginalFile, $conversionTempFile);
 
-        foreach ($conversion->getManipulations() as $manipulation) {
-            (new GlideImage())
-                ->load($conversionTempFile, $manipulation)
-                ->useAbsoluteSourceFilePath()
-                ->save($conversionTempFile);
-        }
+		foreach($conversion->getManipulations() as $manipulation)
+		{
+			(new GlideImage())
+				->load($conversionTempFile, $manipulation)
+				->useAbsoluteSourceFilePath()
+				->save($conversionTempFile);
+		}
 
-        return $conversionTempFile;
-    }
+		return $conversionTempFile;
+	}
 
-    /**
-     * Create a directory to store some working files.
-     *
-     * @return string
-     */
-    public function createTempDirectory()
-    {
-        $tempDirectory = storage_path('medialibrary/temp/'.str_random(16));
+	/**
+	 * Create a directory to store some working files.
+	 *
+	 * @return string
+	 */
+	public function createTempDirectory()
+	{
+		$tempDirectory = storage_path('medialibrary/temp/' . str_random(16));
 
-        File::makeDirectory($tempDirectory, 493, true);
+		File::makeDirectory($tempDirectory, 493, true);
 
-        return $tempDirectory;
-    }
+		return $tempDirectory;
+	}
 
-    /**
-     * @param string $pdfFile
-     *
-     * @return string
-     */
-    protected function convertToImage($pdfFile)
-    {
-        $imageFile = string($pdfFile)->pop('.').'.jpg';
+	/**
+	 * @param string $pdfFile
+	 * @return string
+	 */
+	protected function convertToImage($pdfFile)
+	{
+		$imageFile = string($pdfFile)->pop('.') . '.jpg';
 
-        (new Pdf($pdfFile))->saveImage($imageFile);
+		(new Pdf($pdfFile))->saveImage($imageFile);
 
-        return $imageFile;
-    }
+		return $imageFile;
+	}
 
-    /**
-     * Dispatch the given conversions.
-     *
-     * @param Media $media
-     * @param $queuedConversions
-     */
-    protected function dispatchQueuedConversions(Media $media, $queuedConversions)
-    {
-        $job = new PerformConversions($queuedConversions, $media);
+	/**
+	 * Dispatch the given conversions.
+	 *
+	 * @param Media $media
+	 * @param       $queuedConversions
+	 */
+	protected function dispatchQueuedConversions(Media $media, $queuedConversions)
+	{
+		$job = new PerformConversions($queuedConversions, $media);
 
-        $customQueue = config('laravel-medialibrary.queue_name');
+		$customQueue = config('laravel-medialibrary.queue_name');
 
-        if ($customQueue != '') {
-            $job->onQueue($customQueue);
-        }
+		if($customQueue != '')
+		{
+			$job->onQueue($customQueue);
+		}
 
-        $this->dispatch($job);
-    }
+		$this->dispatch($job);
+	}
 }

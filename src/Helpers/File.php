@@ -9,7 +9,6 @@ class File
      *
      * @param string $fileNameWithDirectory
      * @param string $newFileNameWithoutDirectory
-     *
      * @return string
      */
     public static function renameInDirectory($fileNameWithDirectory, $newFileNameWithoutDirectory)
@@ -23,21 +22,22 @@ class File
 
     /**
      * @param int $sizeInBytes
-     *
      * @return string
      */
     public static function getHumanReadableSize($sizeInBytes)
     {
-        $units = array('B', 'KB', 'MB', 'GB', 'TB');
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-        if ($sizeInBytes == 0) {
-            return '0 '.$units[1];
+        if($sizeInBytes == 0)
+        {
+            return '0 ' . $units[1];
         }
 
-        for ($i = 0; $sizeInBytes > 1024; ++$i) {
+        for($i = 0; $sizeInBytes > 1024; ++$i)
+        {
             $sizeInBytes /= 1024;
         }
 
-        return round($sizeInBytes, 2).' '.$units[$i];
+        return round($sizeInBytes, 2) . ' ' . $units[$i];
     }
 }
