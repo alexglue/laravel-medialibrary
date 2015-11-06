@@ -66,7 +66,7 @@ class FileManipulator
             $renamedFile = MediaLibraryFileHelper::renameInDirectory($conversionResult, $conversion->getName().'.'.
                 $conversion->getResultExtension(pathinfo($copiedOriginalFile, PATHINFO_EXTENSION)));
 
-            app(Filesystem::class)->copyToMediaLibrary($renamedFile, $media, 'conversions');
+            app(Filesystem::class)->copyToMediaLibrary($renamedFile, $media, 'conversions', $renamedFile);
         }
 
         File::deleteDirectory($tempDirectory);

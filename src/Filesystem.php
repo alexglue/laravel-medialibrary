@@ -53,7 +53,7 @@ class Filesystem
         $destination = array_filter([
                 $this->getMediaDirectoryName($media),
                 $subDirectory,
-                $targetFileName? basename($targetFileName) : $targetFileName
+                $targetFileName? basename($targetFileName) : $this->renderFilename($file)
         ]);
 
         $destination = implode(DIRECTORY_SEPARATOR, $destination);
