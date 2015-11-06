@@ -135,4 +135,9 @@ class Filesystem
 
         return implode(DIRECTORY_SEPARATOR, $parts);
     }
+
+    public function renderFilename($filename)
+    {
+        return md5($filename) . '.' . pathinfo($filename, PATHINFO_EXTENSION);
+    }
 }
