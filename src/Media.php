@@ -15,6 +15,7 @@ use Spatie\MediaLibrary\UrlGenerator\UrlGeneratorFactory;
  * @property int id
  * @property string collection_name
  * @property string model_type
+ * @property string  type
  */
 class Media extends Model
 {
