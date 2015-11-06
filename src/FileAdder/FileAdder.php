@@ -104,7 +104,7 @@ class FileAdder
         if (is_string($file)) {
             $this->pathToFile = $file;
             $this->fileName   = app(Filesystem::class)->renderFilename($file);
-            $this->mediaName = pathinfo($file, PATHINFO_FILENAME);
+            $this->mediaName = basename($file);
 
             return $this;
         }
@@ -112,7 +112,7 @@ class FileAdder
         if ($file instanceof UploadedFile) {
             $this->pathToFile = $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename();
             $this->fileName   = app(Filesystem::class)->renderFilename($file->getClientOriginalName());
-            $this->mediaName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $this->mediaName = $file->getClientOriginalName();
 
             return $this;
         }
