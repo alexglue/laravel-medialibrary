@@ -14,7 +14,7 @@ class File
      */
     public static function renameInDirectory($fileNameWithDirectory, $newFileNameWithoutDirectory)
     {
-        $targetFile = pathinfo($fileNameWithDirectory, PATHINFO_DIRNAME).'/'.$newFileNameWithoutDirectory;
+        $targetFile = pathinfo($fileNameWithDirectory, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . $newFileNameWithoutDirectory;
 
         rename($fileNameWithDirectory, $targetFile);
 
