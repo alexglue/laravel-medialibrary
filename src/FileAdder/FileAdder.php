@@ -110,7 +110,7 @@ class FileAdder
         }
 
         if ($file instanceof UploadedFile) {
-            $this->pathToFile = $file->getPath().'/'.$file->getFilename();
+            $this->pathToFile = $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename();
             $this->fileName = $file->getClientOriginalName();
             $this->mediaName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
 
